@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "coverage-compare.v1.json",
+  "title": "Coverage Compare Response Contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ranking",
+    "recommendedKind",
+    "available",
+    "partialData",
+    "generatedAt"
+  ],
+  "properties": {
+    "ranking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "strategyId",
+          "kind",
+          "label",
+          "netCost",
+          "breakeven",
+          "maxProfit",
+          "maxLoss",
+          "riskProfile",
+          "protectionLevel",
+          "payoffSimulation",
+          "riskMetrics",
+          "recommended"
+        ],
+        "properties": {
+          "strategyId": { "type": "string", "minLength": 1 },
+          "kind": {
+            "type": "string",
+            "enum": ["protective_put", "married_put", "collar_put", "covered_straddle"]
+          },
+          "label": { "type": "string", "minLength": 1 },
+          "netCost": { "type": "number" },
+          "breakeven": { "type": "number" },
+          "maxProfit": { "type": "number" },
+          "maxLoss": { "type": "number" },
+          "riskProfile": { "type": "string", "enum": ["limited", "unlimited"] },
+          "protectionLevel": { "type": "string", "enum": ["low", "medium", "high"] },
+          "payoffSimulation": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["price", "pnl"],
+              "properties": {
+                "price": { "type": "number" },
+                "pnl": { "type": "number" },
+                "notes": { "type": "string" }
+              }
+            },
+            "minItems": 1
+          },
+          "riskMetrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["profile", "protectionLevel", "netPremiumPaid"],
+            "properties": {
+              "profile": { "type": "string" },
+              "protectionLevel": { "type": "string" },
+              "netPremiumPaid": { "type": "number" },
+              "stopLossPrice": { "type": "number" },
+              "marginRequired": { "type": "number" }
+            }
+          },
+          "recommended": { "type": "boolean" }
+        }
+      },
+      "minItems": 1
+    },
+    "recommendedKind": {
+      "type": "string",
+      "enum": ["protective_put", "married_put", "collar_put", "covered_straddle"]
+    },
+    "available": { "type": "boolean" },
+    "partialData": { "type": "boolean" },
+    "generatedAt": { "type": "string", "minLength": 1 }
+  },
+  "examples": [
+    {
+      "ranking": [
+        {
+          "strategyId": "str_01J1X2Y3Z4",
+          "kind": "protective_put",
+          "label": "Protective Put",
+          "netCost": 320,
+          "breakeven": 191.75,
+          "maxProfit": 999999,
+          "maxLoss": 320,
+          "riskProfile": "limited",
+          "protectionLevel": "high",
+          "payoffSimulation": [
+            { "price": 160, "pnl": -320 },
+            { "price": 180, "pnl": -320 },
+            { "price": 195, "pnl": -125 },
+            { "price": 200, "pnl": 0 }
+          ],
+          "riskMetrics": {
+            "profile": "protective",
+            "protectionLevel": "high",
+            "netPremiumPaid": 320,
+            "stopLossPrice": 192
+          },
+          "recommended": true
+        }
+      ],
+      "recommendedKind": "protective_put",
+      "available": true,
+      "partialData": false,
+      "generatedAt": "2026-05-20T12:00:00Z"
+    }
+  ]
+}

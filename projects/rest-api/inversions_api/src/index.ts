@@ -23,6 +23,9 @@ import { indicatorsCatalogRouter } from "./routes/indicators/catalog.js";
 import { institutionalAnalysisRouter } from "./routes/institutional/institutionalAnalysis.js";
 import { regulatoryPositionsRouter } from "./routes/institutional/regulatoryPositions.js";
 import institutionalCopilotRouter from "./routes/ai/institutionalCopilot.js";
+import { coverageAnalyzeRouter } from "./routes/coverage/analyze.js";
+import { coverageCompareRouter } from "./routes/coverage/compare.js";
+import { coverageSimulateRouter } from "./routes/coverage/simulate.js";
 
 const envValidation = validateEnvironment();
 if (!envValidation.isValid) {
@@ -61,6 +64,9 @@ app.use("/api/indicators", indicatorsCatalogRouter);
 app.use("/api/institutional", institutionalAnalysisRouter);
 app.use("/api/institutional", regulatoryPositionsRouter);
 app.use("/api/ai", institutionalCopilotRouter);
+app.use("/api/coverage", coverageAnalyzeRouter);
+app.use("/api/coverage", coverageCompareRouter);
+app.use("/api/coverage", coverageSimulateRouter);
 
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });

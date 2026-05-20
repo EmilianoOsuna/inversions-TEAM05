@@ -11,7 +11,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T300 Install `react-router-dom` in `projects/pwa/inversions_app/package.json`
+- [X] T300 Install `react-router-dom` in `projects/pwa/inversions_app/package.json`
 
 ---
 
@@ -19,9 +19,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T301 Update routing in `projects/pwa/inversions_app/src/main.tsx` to use `BrowserRouter` and wrap routes
-- [ ] T302 [P] Create `projects/pwa/inversions_app/src/layouts/MainLayout.tsx` for shared navigation sidebar + Top Navbar
-- [ ] T303 [P] Implement `ChatState` & `useSyncExternalStore` store in `projects/pwa/inversions_app/src/store/chat.ts` for session persistence
+- [X] T301 Update routing in `projects/pwa/inversions_app/src/main.tsx` to use `BrowserRouter` and wrap routes
+- [X] T302 [P] Create `projects/pwa/inversions_app/src/layouts/MainLayout.tsx` for shared navigation sidebar + Top Navbar
+- [X] T303 [P] Implement `ChatState` & `useSyncExternalStore` store in `projects/pwa/inversions_app/src/store/chat.ts` for session persistence
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 
@@ -35,10 +35,10 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T304 [P] [US1] Create thin route POST `/api/coverage/analyze` in `projects/rest-api/inversions_api/src/routes/coverage/analyze.ts`
-- [ ] T305 [P] [US1] Create thin route POST `/api/coverage/compare` in `projects/rest-api/inversions_api/src/routes/coverage/compare.ts`
-- [ ] T306 [US1] Create thin route POST `/api/coverage/simulate` in `projects/rest-api/inversions_api/src/routes/coverage/simulate.ts`
-  - [ ] T306b Mount coverage router (`app.use("/api/coverage", coverageRouter)`) in `projects/rest-api/inversions_api/src/index.ts`
+- [X] T304 [P] [US1] Create thin route POST `/api/coverage/analyze` in `projects/rest-api/inversions_api/src/routes/coverage/analyze.ts`
+- [X] T305 [P] [US1] Create thin route POST `/api/coverage/compare` in `projects/rest-api/inversions_api/src/routes/coverage/compare.ts`
+- [X] T306 [US1] Create thin route POST `/api/coverage/simulate` in `projects/rest-api/inversions_api/src/routes/coverage/simulate.ts`
+  - [X] T306b Mount coverage router (`app.use("/api/coverage", coverageRouter)`) in `projects/rest-api/inversions_api/src/index.ts`
 
 **Checkpoint**: Backend coverage features exposed via REST.
 
@@ -52,9 +52,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T307 [P] [US2] Export API functions for `InstitutionalAnalysisPage` in `projects/pwa/inversions_app/src/services/institutional/institutionalApi.ts` using native fetch and `getAuthHeaders()`
-- [ ] T308 [US2] Implement `projects/pwa/inversions_app/src/pages/institutional/InstitutionalAnalysisPage.tsx` with predefined period/horizon dropdowns
-- [ ] T309 [US2] Link InstitutionalAnalysisPage to `projects/pwa/inversions_app/src/main.tsx` router
+- [X] T307 [P] [US2] Export API functions for `InstitutionalAnalysisPage` in `projects/pwa/inversions_app/src/services/institutional/institutionalApi.ts` using native fetch and `getAuthHeaders()`
+- [X] T308 [US2] Implement `projects/pwa/inversions_app/src/pages/institutional/InstitutionalAnalysisPage.tsx` with predefined period/horizon dropdowns
+- [X] T309 [US2] Link InstitutionalAnalysisPage to `projects/pwa/inversions_app/src/main.tsx` router
 
 ---
 
@@ -66,9 +66,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T310 [P] [US3] Add Regulatory Positions fetch methods in `projects/pwa/inversions_app/src/services/institutional/institutionalApi.ts`
-- [ ] T311 [US3] Implement `projects/pwa/inversions_app/src/pages/institutional/RegulatoryPositionsPage.tsx` featuring 13F positions table and flow displays
-- [ ] T312 [US3] Link RegulatoryPositionsPage to `projects/pwa/inversions_app/src/main.tsx` router
+- [X] T310 [P] [US3] Add Regulatory Positions fetch methods in `projects/pwa/inversions_app/src/services/institutional/institutionalApi.ts`
+- [X] T311 [US3] Implement `projects/pwa/inversions_app/src/pages/institutional/RegulatoryPositionsPage.tsx` featuring 13F positions table and flow displays
+- [X] T312 [US3] Link RegulatoryPositionsPage to `projects/pwa/inversions_app/src/main.tsx` router
 
 ---
 
@@ -80,10 +80,10 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 4
 
-- [ ] T313 [P] [US4] Export coverage API methods (analyze, compare, simulate) in `projects/pwa/inversions_app/src/services/coverage/coverageApi.ts`
-- [ ] T314 [US4] Implement `projects/pwa/inversions_app/src/components/coverage/PayoffChart.tsx` utilizing `lightweight-charts`
-- [ ] T315 [US4] Implement `projects/pwa/inversions_app/src/pages/coverage/CoverageStrategiesPage.tsx`, checking edge-case "Option Chains Missing" rendering fallback instead of chart
-- [ ] T316 [US4] Link CoverageStrategiesPage to `projects/pwa/inversions_app/src/main.tsx` router
+- [X] T313 [P] [US4] Export coverage API methods (analyze, compare, simulate) in `projects/pwa/inversions_app/src/services/coverage/coverageApi.ts`
+- [X] T314 [US4] Implement `projects/pwa/inversions_app/src/components/coverage/PayoffChart.tsx` utilizing `lightweight-charts`
+- [X] T315 [US4] Implement `projects/pwa/inversions_app/src/pages/coverage/CoverageStrategiesPage.tsx`, checking edge-case "Option Chains Missing" rendering fallback instead of chart
+- [X] T316 [US4] Link CoverageStrategiesPage to `projects/pwa/inversions_app/src/main.tsx` router
 
 ---
 
@@ -95,11 +95,11 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 5
 
-- [ ] T317 [P] [US5] Implement AI Chat endpoints interactions locally in `projects/pwa/inversions_app/src/services/ai/aiChatApi.ts`
-- [ ] T318 [P] [US5] Create `projects/pwa/inversions_app/src/components/ai/ChatHistory.tsx` wrapping the `src/store/chat.ts` `useSyncExternalStore` context
-- [ ] T319 [P] [US5] Create `projects/pwa/inversions_app/src/components/ai/ScenarioAnalysisCards.tsx`
-- [ ] T320 [US5] Implement `projects/pwa/inversions_app/src/pages/ai/AIChatPage.tsx` unifying ChatHistory, polling attempts up to 15 max with `ai_unavailable` manual-retry degradation logic
-- [ ] T321 [US5] Link AIChatPage to `projects/pwa/inversions_app/src/main.tsx` router
+- [X] T317 [P] [US5] Implement AI Chat endpoints interactions locally in `projects/pwa/inversions_app/src/services/ai/aiChatApi.ts`
+- [X] T318 [P] [US5] Create `projects/pwa/inversions_app/src/components/ai/ChatHistory.tsx` wrapping the `src/store/chat.ts` `useSyncExternalStore` context
+- [X] T319 [P] [US5] Create `projects/pwa/inversions_app/src/components/ai/ScenarioAnalysisCards.tsx`
+- [X] T320 [US5] Implement `projects/pwa/inversions_app/src/pages/ai/AIChatPage.tsx` unifying ChatHistory, polling attempts up to 15 max with `ai_unavailable` manual-retry degradation logic
+- [X] T321 [US5] Link AIChatPage to `projects/pwa/inversions_app/src/main.tsx` router
 
 ---
 

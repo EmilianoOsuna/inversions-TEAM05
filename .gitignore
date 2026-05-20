@@ -21,3 +21,5 @@ Thumbs.db
 .idea/
 
 .tmp-ai-drfic/
+.vite/
+*.deb

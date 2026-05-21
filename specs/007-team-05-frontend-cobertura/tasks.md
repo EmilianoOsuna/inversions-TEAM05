@@ -126,6 +126,38 @@ description: "Task list template for feature implementation"
 
 ---
 
+## Phase 9: Real Data Sources & Documentation (Cross-Cutting)
+
+**Purpose**: Integrar fuentes de datos reales (SEC EDGAR, FINRA) y documentar semántica de indicadores.
+
+### Real Source Parsers
+
+- [ ] T333 [P] Implement FINRA full-dataset lazy cache in `realSourceParsers.ts` with `ensureFinraCache()` — loads up to 6 pages (×5000 records), shared promise dedup, `Map<string, FinraRecord[]>` at module level
+  - T333a Implement `fetchFinraPage()` with POST to `https://api.finra.org/data/group/otcmarket/name/consolidatedShortInterest`, CSV parsing
+  - T333b Implement module-level `finraCache` + `finraCachePromise` with date boundary detection
+  - T333c Add eager preload kickoff in `bootstrap.ts` — non-blocking `ensureFinraCache().catch(() => {})`
+- [ ] T334 [P] Implement SEC EDGAR real parser in `realSourceParsers.ts` — EFTS search for 13F-HR filings, XML directory enumeration, `informationTable` extraction via regex
+  - T334a Implement `searchEfts(ticker, formType)` using `https://efts.sec.gov/LATEST/search-index`
+  - T334b Implement `extractInfoTableEntries()` regex parser for XML `<infoTable>` blocks
+  - T334c Implement `findXmlWithHoldings()` — iterate XML files in filing directory
+  - T334d Implement `cusipForTicker()` mapping for common tickers
+- [ ] T335 [P] Implement graceful fallback in `parseFinraShortInterestReal` — when ticker not found in cached dataset, return synthetic low-confidence (0.3) observation instead of `null`
+- [ ] T336 Optimize SEC parser performance — reduce `MAX_FILINGS` from 8 to 5, remove artificial `delay(150)` calls, parallelize filing lookups with `Promise.all`
+
+### Documentation & Semantics
+
+- [ ] T337 [P] Document cost/risk indicator semantics across spec docs:
+  - T337a Add "Indicadores Cost/Risk — Semántica" section to `spec.md`
+  - T337b Add "Real Data Sources" section to `plan.md`
+  - T337c Add `RiskMetrics` conceptual table to `data-model.md`
+  - T337d Add semantic `description` fields to `coverage-compare.schema.json`
+  - T337e Add CHK023 checklist item for cost/risk indicator validation
+  - T337f Create `docs/TEAM-05-cobertura-cost-risk-guide.md` — full explanatory guide
+
+---
+
+---
+
 ## Dependencies & Execution Order
 
 - **US1** can be executed natively in Backend independent of all Frontend.

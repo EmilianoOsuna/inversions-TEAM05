@@ -134,7 +134,7 @@ export type InstitutionalSourceParser = (
   payload: unknown,
   request: InstitutionalAnalysisContract,
   source: InstitutionalSourceConfig
-) => InstitutionalSourceObservation | null;
+) => InstitutionalSourceObservation | null | Promise<InstitutionalSourceObservation | null>;
 
 /**
  * Configuración de una fuente institucional configurable.
@@ -488,6 +488,12 @@ export class InstitutionalDataService {
     source: InstitutionalSourceConfig,
     request: InstitutionalAnalysisContract
   ): Promise<InstitutionalSourceObservation | null> {
+    const parser = source.parser ?? this.getDefaultParser(source.kind);
+
+    if (source.parser) {
+      return await parser(null, request, source);
+    }
+
     const url = this.buildSourceUrl(source, request);
     const headers: Record<string, string> = {
       Accept: "application/json",
@@ -518,8 +524,7 @@ export class InstitutionalDataService {
         return text;
       });
 
-      const parser = source.parser ?? this.getDefaultParser(source.kind);
-      return parser(payload, request, source);
+      return await parser(payload, request, source);
     } catch (error) {
       if (controller.signal.aborted) {
         throw this.buildTimeoutError(source, timeoutMs);

@@ -32,3 +32,9 @@
 ## Non-Functional Requirements & Measurability
 - [ ] CHK018 - Can the >80% test coverage requirement be objectively measured specifically on the bounding boxes of the new pages and API services? [Measurability, Spec §RNF-305]
 - [ ] CHK019 - Are the specific existing CSS Variables intended for reuse referenceable for a PR review checklist? [Traceability, Spec §Riesgos y Mitigaciones]
+
+## Cost/Risk Indicator Semantics
+- [ ] CHK020 - Does the spec clearly distinguish between confidence levels (ALTA/MEDIA/BAJA) and monetary amounts (netPremium, downsideRisk)? [Clarity, Spec §Indicadores Cost/Risk]
+- [ ] CHK021 - Is it clear that `netPremium` represents net cash flow, NOT broker commission or margin requirement? [Semantics, Spec §Indicadores Cost/Risk]
+- [ ] CHK022 - Is the Zero-Cost Collar explained as a regular Collar where premiums cancel, not a separate strategy type? [Concept, Spec §Indicadores Cost/Risk]
+- [ ] CHK023 - Does the data model include semantic descriptions for each RiskMetrics field clarifying what it represents and what it does NOT represent? [Traceability, data-model.md §RiskMetrics]

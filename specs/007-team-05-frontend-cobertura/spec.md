@@ -44,6 +44,58 @@ Entregar una interfaz web funcional que consuma los 4 endpoints REST de TEAM-05 
 - Tiempo de carga inicial < 2s en entorno dev (RNF-306).
 - Polling del Chat IA cada 2s con timeout de 30s y máximo 15 intentos (RNF-307).
 
+## Indicadores Cost/Risk — Semántica
+
+Los indicadores de costo y riesgo en las tarjetas de estrategia de cobertura (panel derecho de `CoverageStrategiesPage`) representan conceptos financieros específicos. Es crucial entender qué significa cada campo para interpretar correctamente los resultados.
+
+### Confianza: ALTA / MEDIA / BAJA
+
+Son **niveles de confianza de la estrategia**, no montos de costo. Se derivan de un score compuesto 0-1:
+
+| Nivel | Score mínimo | Significado |
+|-------|-------------|-------------|
+| ALTA | ≥ 0.70 | Fuerte confluencia entre indicadores; baja probabilidad de falsos positivos |
+| MEDIA | ≥ 0.40 | Señales mixtas o acuerdo moderado entre indicadores |
+| BAJA | < 0.40 | Alta incertidumbre o señales débiles/contradictorias |
+
+El score se compone de tres factores ponderados en `coverageStrategyAdapter.ts`:
+- **40%** `protectionScore` — qué tanto downside cubre la estrategia
+- **30%** `costEfficiencyScore` — qué tan eficiente es el costo (`costBenefitRatio`)
+- **30%** `riskScore` — perfil de riesgo (limited = 0.8, unlimited = 0.3)
+
+### Montos en dólares
+
+Cada campo monetario en `RiskMetrics` tiene una semántica específica:
+
+| Label en UI | Campo backend | Semántica | Zero-Cost Collar |
+|-------------|--------------|-----------|------------------|
+| **Prima neta** | `netPremium` | **Flujo neto de caja** para abrir la posición. Long = pagas (positivo), Short = recibes crédito (negativo). NO es comisión ni margen. | **$0.00** |
+| **Downside** | `downsideRisk` | **Pérdida máxima posible** en el peor escenario de mercado. | Precio - put strike |
+| **Protección** | `protectionFloorPrice` | **Precio piso** — precio donde termina la protección del put. | Put strike |
+| **Tope** | `protectionCeilingPrice` | **Precio techo** — solo en Collar, donde el upside queda limitado por el call corto. | Call strike |
+| **Margen** | `marginRequirement` | **Colateral requerido** por el broker para mantener la posición abierta. | Depende del broker |
+| **Break-even** | `breakevenPrice` | **Precio donde PnL = $0** — la estrategia no gana ni pierde. | Precio actual - prima neta |
+| **Max Profit** | `maxProfit` | **Ganancia máxima** posible (null/∞ si es ilimitada). | (call strike - precio actual) + prima neta recibida |
+| **Max Loss** | `maxLoss` | **Pérdida máxima** posible (null/∞ si es ilimitada). | (precio actual - put strike) + prima neta pagada |
+
+> **Regla de oro**: `netPremium` = sumatoria de (prima × signo) para todas las legs, donde long = +1, short = -1, escalado por multiplicador del contrato y shares. Si el resultado es ~$0.00, la estrategia es "zero-cost".
+
+### Zero-Cost Collar
+
+No existe un tipo de estrategia "ZeroCostCollar" separado. Es un **Collar normal** (`collar_put`) donde la prima de la put que compras (long, pagas) y la prima del call que vendes (short, recibes crédito) se cancelan mutuamente, resultando en `netPremiumPerShare ≈ 0.0`. Esto ocurre naturalmente en el cálculo de `collarEngine.ts` cuando el usuario ingresa strikes y primas que se equilibran.
+
+### Diferencia clave
+
+```
+ALTA $20.00  ≠  "El nivel ALTA cuesta $20"
+ALTA         =  Confianza alta en la estrategia (score ≥ 0.70)
+$20.00       =  Prima neta (costo total de abrir la posición)
+```
+
+Son dos conceptos independientes que aparecen en distintas secciones de la UI:
+- El badge **ALTA/MEDIA/BAJA** está en el encabezado de la tarjeta (confianza)
+- Los montos en dólares están en el panel derecho de métricas
+
 ## Restricciones
 
 - No modificar artefactos canónicos globales: `001-inv-spec.md`, `001-inv-plan.md` ni `001-inv-tasks.md`.

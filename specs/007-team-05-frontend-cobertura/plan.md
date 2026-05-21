@@ -47,6 +47,39 @@ Construir la web PWA que consuma los 4 endpoints REST de análisis institucional
 - **Runtime Modes**: PWA development mode (`npm run dev`) / Production mode.
 - **Credential/Account Strategy**: Reúso estricto del helper `getAuthHeaders()` usando `localStorage('inversions.dev.token')` o la variable de entorno `VITE_DEV_BEARER_TOKEN`.
 
+## Real Data Sources
+
+Además del frontend, esta feature integra **fuentes de datos reales** para los parsers institucionales que alimentan las páginas de análisis y posiciones.
+
+### FINRA Short Interest — Caching de dataset completo
+
+**Problema original**: El parser FINRA consultaba archivos `CNMSshvol{date}.txt` que ya no existen (404). La API de FINRA (`POST /data/group/otcmarket/name/consolidatedShortInterest`) retorna datos históricos desde 2019, pero solo 5000 registros por página.
+
+**Solución**: Cache perezoso con carga completa del dataset:
+- `ensureFinraCache()` en `realSourceParsers.ts` — carga hasta 6 páginas (×5000 registros) de la fecha más reciente
+- Almacena en un `Map<string, FinraRecord[]>` a nivel de módulo
+- Promise compartida para deduplicar inicios concurrentes
+- **Eager preload** en `bootstrap.ts` — se dispara al arrancar el servidor sin bloquear
+- Primer llamado: ~4.6s (carga todas las páginas). Llamados subsecuentes: ~0.06ms
+
+**Graceful fallback**: Si un ticker no está en el dataset cachead, se retorna una observación sintética de baja confianza (0.3) con nota aclaratoria, en lugar de null (que mostraría error rojo en la UI).
+
+### SEC EDGAR 13F — EFTS search + XML parsing
+
+**Problema original**: El parser buscaba el 13F *de la propia empresa* via `submissions/CIK{cik}.json`. Las empresas no filing 13F — los filing son las *instituciones* que las poseen.
+
+**Solución**: 
+1. Buscar en EFTS (SEC Elasticsearch) filing 13F-HR que mencionen el ticker objetivo
+2. Para los primeros 5 resultados, listar el directorio del filing y encontrar el XML con la tabla de holdings
+3. Extraer las posiciones del ticker objetivo por `nameOfIssuer` o CUSIP
+4. Paralelizar con `Promise.all` (3.4s vs 19s anterior)
+
+### Cohabitat mock / real
+
+- `createMixedFetch()` en bootstrap.ts intercepta URLs con `institutional.mock` y usa fetch simulado
+- Los parsers custom (`parseSecEdgar13fReal`, `parseFinraShortInterestReal`) hacen su propio fetching directamente, saltándose el mock
+- Fuentes sin parser custom (Unusual Whales, Finviz) continúan usando mock
+
 ## Project Structure
 
 ### Documentation (this feature)

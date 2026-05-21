@@ -38,12 +38,12 @@
             "enum": ["protective_put", "married_put", "collar_put", "covered_straddle"]
           },
           "label": { "type": "string", "minLength": 1 },
-          "netCost": { "type": "number" },
-          "breakeven": { "type": "number" },
-          "maxProfit": { "type": "number" },
-          "maxLoss": { "type": "number" },
-          "riskProfile": { "type": "string", "enum": ["limited", "unlimited"] },
-          "protectionLevel": { "type": "string", "enum": ["low", "medium", "high"] },
+          "netCost": { "type": "number", "description": "Prima neta total (flujo de caja neto para abrir la posición). Long=+ Short=−. NO es comisión ni margen. En zero-cost collar debe ser ~0." },
+          "breakeven": { "type": "number", "description": "Precio donde PnL=$0. currentPrice + netPremiumPerShare (sin comisiones)." },
+          "maxProfit": { "type": "number", "description": "Ganancia máxima posible. null/∞ si es unlimited." },
+          "maxLoss": { "type": "number", "description": "Pérdida máxima posible. null/∞ si es unlimited." },
+          "riskProfile": { "type": "string", "enum": ["limited", "unlimited"], "description": "limited = pérdida máxima acotada; unlimited = pérdida teóricamente infinita." },
+          "protectionLevel": { "type": "string", "enum": ["low", "medium", "high"], "description": "Nivel de protección: qué tanto downside cubre la estrategia. NO es confianza ALTA/MEDIA/BAJA." },
           "payoffSimulation": {
             "type": "array",
             "items": {
@@ -63,11 +63,11 @@
             "additionalProperties": false,
             "required": ["profile", "protectionLevel", "netPremiumPaid"],
             "properties": {
-              "profile": { "type": "string" },
-              "protectionLevel": { "type": "string" },
-              "netPremiumPaid": { "type": "number" },
-              "stopLossPrice": { "type": "number" },
-              "marginRequired": { "type": "number" }
+              "profile": { "type": "string", "description": "Perfil de riesgo: 'protective' | 'income' | 'speculative'." },
+              "protectionLevel": { "type": "string", "description": "Nivel de protección de la estrategia. NO es la confianza (ALTA/MEDIA/BAJA)." },
+              "netPremiumPaid": { "type": "number", "description": "Prima neta pagada (positivo = pagas, negativo = recibes crédito). Sinónimo de netCost." },
+              "stopLossPrice": { "type": "number", "description": "Precio de stop-loss sugerido (no es una orden real, es recomendación)." },
+              "marginRequired": { "type": "number", "description": "Colateral estimado requerido por el broker (Regla T + mantenimiento). NO es el costo de entrada." }
             }
           },
           "recommended": { "type": "boolean" }

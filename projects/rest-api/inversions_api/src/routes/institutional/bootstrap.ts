@@ -15,13 +15,19 @@ import {
   type InstitutionalSourceConfig,
   type InstitutionalSourceKind,
   type InstitutionalSourceObservation,
-  type InstitutionalSourceReport
+  type InstitutionalSourceReport,
+  type InstitutionalSourceParser
 } from "../../modules/institutional/institutionalDataService.js";
 import {
   InstitutionalZonesEngine,
   type InstitutionalZone,
   type InstitutionalZonesResult
 } from "../../modules/institutional/institutionalZonesEngine.js";
+import {
+  parseSecEdgar13fReal,
+  parseFinraShortInterestReal,
+  ensureFinraCache
+} from "../../modules/institutional/realSourceParsers.js";
 
 type InstitutionalRouteContext = {
   service: InstitutionalDataService;
@@ -84,7 +90,7 @@ export function getInstitutionalRouteContext(): InstitutionalRouteContext {
 
   const service = new InstitutionalDataService({
     sources: defaultSourceConfigs,
-    fetchImpl: createMockInstitutionalFetch()
+    fetchImpl: createMixedFetch()
   });
 
   const engine = new InstitutionalZonesEngine({
@@ -96,6 +102,10 @@ export function getInstitutionalRouteContext(): InstitutionalRouteContext {
   });
 
   routeContext = { service, engine };
+
+  // Eager background preload — does NOT block the return
+  ensureFinraCache().catch(() => {});
+
   return routeContext;
 }
 
@@ -240,11 +250,12 @@ function buildDefaultSourceConfigs(): InstitutionalSourceConfig[] {
       label: "SEC EDGAR 13F",
       enabled: true,
       tier: "free",
-      baseUrl: "https://institutional.mock",
-      path: "/mock/sec-edgar-13f",
+      baseUrl: "https://efts.sec.gov",
+      path: "/LATEST/search-index",
       priority: 1,
-      cacheTtlMs: 120_000,
-      rateLimitPerMinute: 30
+      cacheTtlMs: 600_000,
+      rateLimitPerMinute: 10,
+      parser: parseSecEdgar13fReal as unknown as InstitutionalSourceParser
     },
     {
       sourceId: "finra-short-interest",
@@ -252,11 +263,12 @@ function buildDefaultSourceConfigs(): InstitutionalSourceConfig[] {
       label: "FINRA Short Interest",
       enabled: true,
       tier: "free",
-      baseUrl: "https://institutional.mock",
-      path: "/mock/finra-short-interest",
+      baseUrl: "https://api.finra.org",
+      path: "/data/group/otcmarket/name/consolidatedShortInterest",
       priority: 2,
-      cacheTtlMs: 120_000,
-      rateLimitPerMinute: 30
+      cacheTtlMs: 600_000,
+      rateLimitPerMinute: 10,
+      parser: parseFinraShortInterestReal as unknown as InstitutionalSourceParser
     },
     {
       sourceId: "unusual-whales",
@@ -283,6 +295,18 @@ function buildDefaultSourceConfigs(): InstitutionalSourceConfig[] {
       rateLimitPerMinute: 30
     }
   ];
+}
+
+function createMixedFetch(): FetchLike {
+  const mockFetch = createMockInstitutionalFetch();
+  const nativeFetch = globalThis.fetch;
+
+  return async (input: string, init) => {
+    if (input.includes("institutional.mock")) {
+      return mockFetch(input, init);
+    }
+    return nativeFetch(input, init as Record<string, unknown>) as ReturnType<FetchLike>;
+  };
 }
 
 function createMockInstitutionalFetch(): FetchLike {

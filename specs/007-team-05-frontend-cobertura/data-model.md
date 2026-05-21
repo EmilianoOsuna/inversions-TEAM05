@@ -41,6 +41,53 @@ export interface ChatState {
 }
 ```
 
+## RiskMetrics — Semántica Conceptual
+
+El objeto `RiskMetrics` en cada `CoverageStrategyResult` contiene los indicadores de costo/riesgo. Cada campo tiene un significado financiero específico:
+
+| Campo Backend | Tipo | Semántica | Fórmula conceptual | Zero-Cost Collar | Notas |
+|--------------|------|-----------|-------------------|-------------------|-------|
+| `riskProfile` | `"limited" \| "unlimited"` | Perfil de riesgo de la estrategia | Si maxLoss es finito → limited | limited | Determina color del badge (verde/rojo) |
+| `netPremium` | `number` | **Prima neta total**: flujo de caja neto para abrir todas las legs | `Σ(leg.premium × legScale × signo)`, long=+, short=− | **$0.00** | NO es comisión, NO es margen. Es el costo/ingreso neto |
+| `netPremiumPerShare` | `number` | Prima neta por acción | `netPremium / shares` | **$0.00** | Útil para comparar entre estrategias |
+| `protectionFloorPrice` | `number` | **Precio piso**: precio donde termina la protección del put | strike del put | Put strike | Debajo de este precio, el put protege |
+| `protectionCeilingPrice` | `number \| undefined` | **Precio techo**: solo en Collar, límite del upside | strike del call corto | Call strike | Solo presente en `collar_put` |
+| `downsideRisk` | `number` | **Pérdida máxima posible** en el peor escenario | Si riskProfile=limited: `(currentPrice - putStrike + netPremiumPerShare) × shares` | `(currentPrice - putStrike) × shares` | Si es unlimited, el riesgo es ∞ |
+| `upsideCap` | `number \| null` | **Ganancia máxima posible** | Si riskProfile=limited: `(callStrike - currentPrice + netPremiumPerShare) × shares` | `(callStrike - currentPrice) × shares` | Si es unlimited, es null |
+| `maxProtection` | `number` | **Valor monetario de la protección** | `(currentPrice - putStrike) × shares` | Igual | Cuánto downside cubre el put |
+| `costBenefitRatio` | `number` | **Relación costo/beneficio** | Collar: `(callStrike - putStrike) / \|netPremiumPerShare\|` | **~0.00** | Ratio alto = mejor relación |
+| `breakEvenPrice` | `number` | **Precio de equilibrio**: PnL = $0 | `currentPrice + netPremiumPerShare` (sin incluir comisiones) | **currentPrice** | Difiera del current price por la prima neta |
+| `stopLossPrice` | `number` | **Precio de stop-loss recomendado** | Basado en `protectionFloorPrice` + margen de tolerancia | Put strike | Nota: no es una orden real, es sugerencia |
+| `marginRequirement` | `number` | **Colateral requerido** por el broker (estimado) | Regla T + margen de mantenimiento | Depende del broker | Es un estimado, no un cálculo exacto de broker |
+| `exerciseRiskScore` | `number` | **Score de riesgo de ejercicio** (0-1) | Basado en volatilidad y tiempo hasta expiración | Variable | Más alto = más riesgo de asignación anticipada |
+| `volatilityStressLoss` | `number` | **Pérdida estimada bajo estrés de volatilidad** | Simulación de +2 desviaciones en IV | Variable | Modelo de estrés |
+
+### Diferencias clave entre conceptos similares
+
+| Concepto | ¿Qué es? | ¿Qué NO es? |
+|----------|---------|-------------|
+| `netPremium` | Flujo de caja neto para abrir la posición | Comisión del broker, margen requerido, ni prima de una sola leg |
+| `downsideRisk` | Pérdida máxima en el peor escenario | Prima pagada, ni margen |
+| `marginRequirement` | Colateral estimado requerido | Costo de entrada, ni prima |
+| `protectionFloorPrice` | Precio donde el put comienza a proteger | Stop-loss automático |
+
+### Cálculo de prima neta por estrategia
+
+| Estrategia | Legs | Cálculo de `netPremium` |
+|-----------|------|------------------------|
+| **Protective Put** | Long Put (pagas) | `+ putPremium × shares` |
+| **Married Put** | Long Put ATM (pagas más) | `+ putPremiumATM × shares` |
+| **Collar Put** | Long Put (pagas) + Short Call (recibes) | `+ putPremium × shares − callPremium × shares` |
+| **Covered Straddle** | Short Put (recibes) + Short Call (recibes) | `− putPremium × shares − callPremium × shares` |
+
+### Ejemplo numérico: Collar en AAPL a $200
+
+| Leg | Side | Strike | Prima/share | Contribución |
+|-----|------|--------|-------------|-------------|
+| Put protector | Long | $180 | $2.50 | +$2.50 × 100 = +$250 |
+| Call cubierto | Short | $220 | $2.50 | −$2.50 × 100 = −$250 |
+| **Total netPremium** | | | | **$0.00** ✅ Zero-Cost |
+
 ## API Interfaces
 
 ### Institutional Analysis API

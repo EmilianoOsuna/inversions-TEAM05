@@ -127,8 +127,8 @@ Contract Alignment & Traceability fields:
 External Sources & Assumed SLAs:
 - SEC EDGAR (13F): daily batch updates; availability 99.5%, update latency up to 24h.
 - FINRA TRACE: intraday trade reports; availability 99.8%, ingestion delay ~5–15m.
-- Unusual Whales: near-realtime flow signals; availability assumed 99.0%, may have API rate limits.
-- Finviz: daily refresh for screens/fundamentals; availability 99.5%.
+- Yahoo Finance Options Flow: options chain data (free, no API key); availability ~99.5%, may have unannounced rate limits.
+- Yahoo Finance Institutional: institutional holders data (free, no API key); availability ~99.5%, no formal SLA.
 - Market data feeds (primary price/quotes): assume 99.9% SLA for primary vendors; fallback to consolidated delayed feeds on partial outage.
 
 ## 6) Restricciones y Guardrails

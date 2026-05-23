@@ -74,11 +74,36 @@ Además del frontend, esta feature integra **fuentes de datos reales** para los 
 3. Extraer las posiciones del ticker objetivo por `nameOfIssuer` o CUSIP
 4. Paralelizar con `Promise.all` (3.4s vs 19s anterior)
 
-### Cohabitat mock / real
+### Yahoo Finance Options Flow — Reemplazo de Unusual Whales
 
-- `createMixedFetch()` en bootstrap.ts intercepta URLs con `institutional.mock` y usa fetch simulado
-- Los parsers custom (`parseSecEdgar13fReal`, `parseFinraShortInterestReal`) hacen su propio fetching directamente, saltándose el mock
-- Fuentes sin parser custom (Unusual Whales, Finviz) continúan usando mock
+**Problema original**: Unusual Whales requería API paga (~$50/mes) y no tenía parser real.
+
+**Solución**: Usar la API gratuita de Yahoo Finance options chain para detectar actividad "unusual":
+1. `fetchYahooOptions(ticker)` — obtiene cadena de opciones desde `query1.finance.yahoo.com/v7/finance/options/{ticker}`
+2. `computeOptionsFlowSignal()` — identifica strikes donde volumen > 2× OI (señal de flujo inusual)
+3. `parseYahooOptionsFlow()` — normaliza a `InstitutionalSourceObservation` con confidence basado en cantidad de señales detectadas
+4. Registrado como source `yahoo-options-flow` con tier `free` en `bootstrap.ts`
+
+### Yahoo Finance Institutional — Reemplazo de Finviz
+
+**Problema original**: Finviz no tiene API pública oficial (solo scraping frágil). Su data de ownership era redundante con SEC EDGAR.
+
+**Solución**: Usar la API gratuita de Yahoo Finance para datos institucionales:
+1. `fetchYahooInstitutional(ticker)` — obtiene `quoteSummary.institutionOwnership` desde `query1.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=institutionOwnership`
+2. `parseYahooInstitutional()` — extrae holders count, % held, change en shares → deriva inflows/outflows direccionales
+3. Complementa a SEC EDGAR (que es quarterly) con datos más frecuentes
+4. Registrado como source `yahoo-institutional` con tier `free` en `bootstrap.ts`
+
+### Data Source Matrix
+
+| Fuente | Tier | Estado | URL base | Implementada en |
+|--------|------|--------|----------|-----------------|
+| SEC EDGAR 13F | free | ✅ REAL | `https://efts.sec.gov` | T334 |
+| FINRA Short Interest | free | ✅ REAL | `https://api.finra.org` | T333 |
+| Yahoo Finance Options Flow | free | ⬜ PENDIENTE | `https://query1.finance.yahoo.com/v7/finance/options` | T338 |
+| Yahoo Finance Institutional | free | ⬜ PENDIENTE | `https://query1.finance.yahoo.com/v10/finance/quoteSummary` | T339 |
+
+> Unusual Whales y Finviz Institutional eliminados — reemplazados por Yahoo Finance.
 
 ## Project Structure
 

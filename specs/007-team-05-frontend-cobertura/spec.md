@@ -96,6 +96,19 @@ Son dos conceptos independientes que aparecen en distintas secciones de la UI:
 - El badge **ALTA/MEDIA/BAJA** está en el encabezado de la tarjeta (confianza)
 - Los montos en dólares están en el panel derecho de métricas
 
+## Data Source Matrix
+
+Estado actual de las fuentes de datos que alimentan las páginas de Institutional Analysis y Regulatory Positions:
+
+| Fuente | Tier | Estado | URL base | Implementada en |
+|--------|------|--------|----------|-----------------|
+| SEC EDGAR 13F | free | ✅ REAL | `https://efts.sec.gov` | T334 |
+| FINRA Short Interest | free | ✅ REAL | `https://api.finra.org` | T333 |
+| Yahoo Finance Options Flow | free | ⬜ PENDIENTE | `https://query1.finance.yahoo.com/v7/finance/options` | T338 |
+| Yahoo Finance Institutional | free | ⬜ PENDIENTE | `https://query1.finance.yahoo.com/v10/finance/quoteSummary` | T339 |
+
+> **Nota**: Unusual Whales y Finviz Institutional fueron reemplazados por fuentes gratuitas de Yahoo Finance (ver T338-T340). Las fuentes Coverage Strategies y AI Chat no dependen de fuentes externas.
+
 ## Restricciones
 
 - No modificar artefactos canónicos globales: `001-inv-spec.md`, `001-inv-plan.md` ni `001-inv-tasks.md`.
@@ -122,7 +135,7 @@ Son dos conceptos independientes que aparecen en distintas secciones de la UI:
    - Visualización de zonas S/R (tabla con precio, fuerza, confianza, volumen)
    - Resumen de tendencia (dirección, score, confidence)
    - Métricas de posicionamiento
-   - Reportes de fuentes (SEC 13F, FINRA, Unusual Whales, Finviz)
+   - Reportes de fuentes (SEC 13F, FINRA, Yahoo Finance Options Flow, Yahoo Finance Institutional)
 
 2. **Página de Posiciones Regulatorias** (`/institutional/positions`)
    - Tabla de posiciones 13F por fondo
@@ -163,7 +176,7 @@ Son dos conceptos independientes que aparecen en distintas secciones de la UI:
 ### Frontend (tests)
 
 - Tests unitarios para cada página (render, estados loading/error/data)
-- Tests para servicios API (mocking fetch)
+- Tests para servicios API (con fetch mockeado en tests unitarios)
 - Tests para polling del Chat IA
 
 ## Criterios de Aceptación

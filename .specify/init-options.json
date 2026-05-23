@@ -1,8 +1,9 @@
 {
-  "ai": "copilot",
+  "ai": "opencode",
   "branch_numbering": "sequential",
+  "context_file": "AGENTS.md",
   "here": false,
-  "integration": "copilot",
+  "integration": "opencode",
   "preset": null,
   "script": "ps",
   "speckit_version": "0.7.3.dev0"

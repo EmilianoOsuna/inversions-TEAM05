@@ -6,6 +6,10 @@ Feature para TEAM-05 (TurboPapus): análisis institucional y estrategias de cobe
 
 ## Clarifications
 
+### Session 2026-05-22
+
+- Q: ¿Qué comportamiento debe tener el sistema cuando las fuentes de datos upstream (SEC EDGAR, FINRA, Yahoo Finance) están caídas o retornan error? → A: El sistema retorna análisis parcial con las fuentes disponibles. Cada fuente inaccesible se reporta individualmente en `sourceReports[].status = "error"` con detalle del error, sin bloquear la respuesta completa. Si todas las fuentes fallan, retorna HTTP 503 con `{"error":"all_sources_unavailable","sourceReports":[...]}`.
+
 ### Session 2026-05-19
 
 - Q: ¿Qué nivel de trazabilidad debe registrar el módulo de IA por cada explicación? → A: Registrar trazabilidad completa por respuesta IA: `context_id`, estrategia, evidencia usada, timestamp, versión de modelo y hash de salida.
@@ -45,6 +49,7 @@ Entregar un componente modular que produzca análisis institucional accionable y
 - Rendimiento: la respuesta completa (cálculo + explicación IA) debe cumplir p95 <= 5s; si excede, el sistema debe responder en modo asíncrono con polling cada 2s, timeout total de 30s y máximo 15 intentos.
 - Seguridad de acceso: solo roles `analyst` y `risk_manager` pueden consultar o solicitar explicaciones; este módulo no expone operaciones de ejecución para ningún rol.
 - Retención de auditoría: conservar trazas y evidencias operativas durante 365 días para revisión, cumplimiento y análisis post-incidente.
+- Degradación por fuentes externas: si una fuente upstream (SEC EDGAR, FINRA, Yahoo Finance) falla, el sistema retorna análisis parcial con las fuentes restantes, reportando cada fuente fallida individualmente con `sourceReports[].status = "error"`. Si todas las fuentes fallan, retorna HTTP 503.
 
 ## Restricciones
 
@@ -84,6 +89,7 @@ Entregar un componente modular que produzca análisis institucional accionable y
 
 - Riesgo: Ambigüedad en parámetros de estrategia → Mitigación: definir parámetros explícitos y defaults, pruebas de sensibilidad.
 - Riesgo: Fuga de responsabilidad por interpretaciones IA → Mitigación: marcar claramente salidas como informativas y requerir firma humana.
+- Riesgo: Fuentes upstream no disponibles → Mitigación: degradación parcial con reporte por fuente (`sourceReports[].status`), respuesta parcial con fuentes disponibles, y 503 solo si todas fallan.
 
 ## Trazabilidad
 
